@@ -1046,15 +1046,41 @@
         function displayProfiles(profilesToShow) {
             const profileList = document.getElementById('profileList');
             
+            // profilesToShow가 없거나 빈 배열이면 profiles 사용
+            if (!profilesToShow || profilesToShow.length === 0) {
+                profilesToShow = profiles || [];
+            }
+            
+            // 여전히 없으면 데모 데이터 강제 로드
+            if (profilesToShow.length === 0) {
+                console.log('표시할 프로필이 없어서 데모 데이터를 로드합니다.');
+                initDemoData();
+                // localStorage에서 다시 읽기
+                const stored = localStorage.getItem('linkedinProfiles');
+                if (stored) {
+                    try {
+                        profilesToShow = JSON.parse(stored);
+                        profiles = profilesToShow;
+                    } catch (e) {
+                        console.error('데이터 파싱 오류:', e);
+                    }
+                }
+            }
+            
             if (profilesToShow.length === 0) {
                 profileList.innerHTML = `
                     <div class="empty-state">
                         <p>저장된 프로필이 없습니다.</p>
                         <p style="margin-top: 10px; font-size: 0.9em;">위 폼을 사용하여 프로필을 추가하세요.</p>
+                        <button onclick="forceLoadDemoData()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            🔄 데모 데이터 로드하기
+                        </button>
                     </div>
                 `;
                 return;
             }
+            
+            console.log('프로필 표시 중:', profilesToShow.length, '개');
 
             profileList.innerHTML = profilesToShow.map(profile => {
                 const specialty = profile.specialty || '';
