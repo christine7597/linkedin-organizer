@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Organizer</title>
+    <title>MindConnect - Psychology Network Organizer</title>
     <style>
         * {
             margin: 0;
@@ -291,8 +291,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📇 LinkedIn Organizer</h1>
-            <p>LinkedIn 프로필을 체계적으로 관리하세요</p>
+            <h1>🧠 MindConnect</h1>
+            <p>Psychology Network Organizer - 심리학 네트워크를 체계적으로 관리하세요</p>
         </div>
 
         <div class="stats">
@@ -300,14 +300,23 @@
                 <h3 id="totalCount">0</h3>
                 <p>총 프로필</p>
             </div>
+            <div class="stat-card">
+                <h3 id="researcherCount">0</h3>
+                <p>연구자</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="therapistCount">0</h3>
+                <p>치료사/상담사</p>
+            </div>
         </div>
 
         <div class="main-content">
             <div class="form-section">
-                <h2 style="margin-bottom: 20px; color: #333;">프로필 추가</h2>
+                <h2 style="margin-bottom: 20px; color: #333;">심리학 전문가 프로필 추가</h2>
                 
                 <div class="alert alert-info" style="margin-bottom: 20px;">
-                    💡 <strong>빠른 추가:</strong> LinkedIn URL을 입력하고 "정보 가져오기"를 클릭하세요!
+                    💡 <strong>빠른 추가:</strong> LinkedIn URL을 입력하고 "정보 가져오기"를 클릭하세요!<br>
+                    🧠 심리학 연구자, 치료사, 상담사, 정신건강 전문가들의 프로필을 관리합니다.
                 </div>
 
                 <div class="form-group">
@@ -331,24 +340,37 @@
                     </div>
                     <div class="form-group">
                         <label for="position">직책</label>
-                        <input type="text" id="position">
+                        <input type="text" id="position" placeholder="예: 임상심리사, 연구원, 교수">
+                    </div>
+                    <div class="form-group">
+                        <label for="specialty">전문 분야</label>
+                        <input type="text" id="specialty" placeholder="예: 임상심리, 상담심리, 산업심리, 인지심리">
+                        <small style="color: #666; font-size: 0.85em; display: block; margin-top: 5px;">
+                            쉼표로 구분하여 여러 분야 입력 가능
+                        </small>
                     </div>
                     <div class="form-group">
                         <label for="linkedinUrl">LinkedIn URL</label>
                         <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/...">
                     </div>
                     <div class="form-group">
-                        <label for="notes">메모</label>
-                        <textarea id="notes" placeholder="추가 정보나 메모를 입력하세요"></textarea>
+                        <label for="notes">메모 / 연구 분야</label>
+                        <textarea id="notes" placeholder="연구 관심사, 협업 가능 분야, 학회 참석 이력 등을 입력하세요"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" id="submitBtn">프로필 저장</button>
                 </form>
             </div>
 
             <div class="list-section">
-                <h2 style="margin-bottom: 20px; color: #333;">저장된 프로필</h2>
+                <h2 style="margin-bottom: 20px; color: #333;">심리학 네트워크</h2>
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="🔍 이름, 회사, 직책으로 검색...">
+                    <input type="text" id="searchInput" placeholder="🔍 이름, 회사, 직책, 전문 분야로 검색...">
+                </div>
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="filterByType('all')" id="filterAll">전체</button>
+                    <button class="btn btn-secondary" onclick="filterByType('researcher')" id="filterResearcher">연구자</button>
+                    <button class="btn btn-secondary" onclick="filterByType('therapist')" id="filterTherapist">치료사/상담사</button>
+                    <button class="btn btn-secondary" onclick="filterByType('academic')" id="filterAcademic">학계</button>
                 </div>
                 <div class="profile-list" id="profileList">
                     <div class="empty-state">
@@ -364,6 +386,7 @@
         // 데이터 저장소 (로컬 스토리지)
         let profiles = JSON.parse(localStorage.getItem('linkedinProfiles')) || [];
         let editingId = null;
+        let currentFilter = 'all';
 
         // 페이지 로드 시 프로필 목록 표시
         function loadProfiles() {
@@ -385,19 +408,26 @@
                 return;
             }
 
-            profileList.innerHTML = profilesToShow.map(profile => `
+            profileList.innerHTML = profilesToShow.map(profile => {
+                const specialty = profile.specialty || '';
+                const specialtyTags = specialty ? specialty.split(',').map(s => s.trim()).filter(s => s) : [];
+                const profileType = getProfileType(profile);
+                
+                return `
                 <div class="profile-card">
-                    <h3>${escapeHtml(profile.name)}</h3>
-                    ${profile.company ? `<div class="info"><strong>회사:</strong> ${escapeHtml(profile.company)}</div>` : ''}
+                    <h3>${escapeHtml(profile.name)} ${getTypeIcon(profileType)}</h3>
+                    ${profile.company ? `<div class="info"><strong>회사/기관:</strong> ${escapeHtml(profile.company)}</div>` : ''}
                     ${profile.position ? `<div class="info"><strong>직책:</strong> ${escapeHtml(profile.position)}</div>` : ''}
+                    ${specialtyTags.length > 0 ? `<div class="info"><strong>전문 분야:</strong> ${specialtyTags.map(tag => `<span style="background: #e3f2fd; padding: 3px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px;">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
                     ${profile.linkedinUrl ? `<div class="info"><strong>LinkedIn:</strong> <a href="${profile.linkedinUrl}" target="_blank">프로필 보기</a></div>` : ''}
-                    ${profile.notes ? `<div class="info"><strong>메모:</strong> ${escapeHtml(profile.notes)}</div>` : ''}
+                    ${profile.notes ? `<div class="info"><strong>연구 분야/메모:</strong> ${escapeHtml(profile.notes)}</div>` : ''}
                     <div class="actions">
                         <button class="btn btn-edit" onclick="editProfile('${profile.id}')">수정</button>
                         <button class="btn btn-danger" onclick="deleteProfile('${profile.id}')">삭제</button>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         // 프로필 추가/수정
@@ -407,6 +437,7 @@
             const name = document.getElementById('name').value.trim();
             const company = document.getElementById('company').value.trim();
             const position = document.getElementById('position').value.trim();
+            const specialty = document.getElementById('specialty').value.trim();
             const linkedinUrl = document.getElementById('linkedinUrl').value.trim();
             const notes = document.getElementById('notes').value.trim();
 
@@ -424,6 +455,7 @@
                         name,
                         company,
                         position,
+                        specialty,
                         linkedinUrl,
                         notes,
                         updatedAt: new Date().toISOString()
@@ -438,6 +470,7 @@
                     name,
                     company,
                     position,
+                    specialty,
                     linkedinUrl,
                     notes,
                     createdAt: new Date().toISOString()
@@ -469,6 +502,7 @@
             document.getElementById('name').value = profile.name;
             document.getElementById('company').value = profile.company || '';
             document.getElementById('position').value = profile.position || '';
+            document.getElementById('specialty').value = profile.specialty || '';
             document.getElementById('linkedinUrl').value = profile.linkedinUrl || '';
             document.getElementById('notes').value = profile.notes || '';
 
@@ -499,17 +533,19 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
             
             if (!searchTerm) {
-                displayProfiles(profiles);
+                displayProfiles(applyFilter(profiles));
                 return;
             }
 
             const filtered = profiles.filter(profile => 
                 profile.name.toLowerCase().includes(searchTerm) ||
                 (profile.company && profile.company.toLowerCase().includes(searchTerm)) ||
-                (profile.position && profile.position.toLowerCase().includes(searchTerm))
+                (profile.position && profile.position.toLowerCase().includes(searchTerm)) ||
+                (profile.specialty && profile.specialty.toLowerCase().includes(searchTerm)) ||
+                (profile.notes && profile.notes.toLowerCase().includes(searchTerm))
             );
 
-            displayProfiles(filtered);
+            displayProfiles(applyFilter(filtered));
         }
 
         document.getElementById('searchInput').addEventListener('input', searchProfiles);
@@ -517,6 +553,90 @@
         // 통계 업데이트
         function updateStats() {
             document.getElementById('totalCount').textContent = profiles.length;
+            
+            const researcherCount = profiles.filter(p => getProfileType(p) === 'researcher' || getProfileType(p) === 'academic').length;
+            const therapistCount = profiles.filter(p => getProfileType(p) === 'therapist').length;
+            
+            document.getElementById('researcherCount').textContent = researcherCount;
+            document.getElementById('therapistCount').textContent = therapistCount;
+        }
+
+        // 프로필 타입 판별
+        function getProfileType(profile) {
+            const position = (profile.position || '').toLowerCase();
+            const company = (profile.company || '').toLowerCase();
+            const specialty = (profile.specialty || '').toLowerCase();
+            
+            if (position.includes('교수') || position.includes('professor') || position.includes('연구') || position.includes('researcher') || company.includes('대학') || company.includes('university')) {
+                return 'academic';
+            }
+            if (position.includes('치료') || position.includes('상담') || position.includes('therapist') || position.includes('counselor') || specialty.includes('임상') || specialty.includes('상담')) {
+                return 'therapist';
+            }
+            if (position.includes('연구') || position.includes('research')) {
+                return 'researcher';
+            }
+            return 'other';
+        }
+
+        // 타입 아이콘
+        function getTypeIcon(type) {
+            const icons = {
+                'academic': '🎓',
+                'researcher': '🔬',
+                'therapist': '💚',
+                'other': '👤'
+            };
+            return icons[type] || icons['other'];
+        }
+
+        // 필터 적용
+        function applyFilter(profilesToFilter) {
+            if (currentFilter === 'all') {
+                return profilesToFilter;
+            }
+            
+            return profilesToFilter.filter(profile => {
+                const type = getProfileType(profile);
+                if (currentFilter === 'researcher') {
+                    return type === 'researcher' || type === 'academic';
+                }
+                if (currentFilter === 'therapist') {
+                    return type === 'therapist';
+                }
+                if (currentFilter === 'academic') {
+                    return type === 'academic';
+                }
+                return true;
+            });
+        }
+
+        // 필터 버튼 클릭
+        function filterByType(type) {
+            currentFilter = type;
+            
+            // 버튼 스타일 업데이트
+            document.querySelectorAll('.btn-secondary').forEach(btn => {
+                btn.style.background = '#f0f0f0';
+                btn.style.color = '#333';
+            });
+            document.getElementById('filter' + type.charAt(0).toUpperCase() + type.slice(1)).style.background = '#667eea';
+            document.getElementById('filter' + type.charAt(0).toUpperCase() + type.slice(1)).style.color = 'white';
+            
+            // 검색어가 있으면 검색 결과에 필터 적용
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (searchTerm) {
+                const filtered = profiles.filter(profile => 
+                    profile.name.toLowerCase().includes(searchTerm) ||
+                    (profile.company && profile.company.toLowerCase().includes(searchTerm)) ||
+                    (profile.position && profile.position.toLowerCase().includes(searchTerm)) ||
+                    (profile.specialty && profile.specialty.toLowerCase().includes(searchTerm)) ||
+                    (profile.notes && profile.notes.toLowerCase().includes(searchTerm))
+                );
+                displayProfiles(applyFilter(filtered));
+            } else {
+                displayProfiles(applyFilter(profiles));
+            }
         }
 
         // XSS 방지
@@ -597,6 +717,10 @@
 
         // 초기 로드
         loadProfiles();
+        
+        // 필터 버튼 초기 스타일
+        document.getElementById('filterAll').style.background = '#667eea';
+        document.getElementById('filterAll').style.color = 'white';
     </script>
 </body>
 </html>
