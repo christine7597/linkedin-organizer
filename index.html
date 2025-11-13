@@ -659,20 +659,28 @@
         function initDemoData() {
             // localStorage에서 다시 읽어오기
             const stored = localStorage.getItem('linkedinProfiles');
+            let hasValidData = false;
+            
             if (stored) {
                 try {
                     const parsed = JSON.parse(stored);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        profiles = parsed;
-                        return; // 이미 데이터가 있으면 데모 데이터 로드하지 않음
+                        // 유효한 프로필 데이터가 있는지 확인 (최소한 name 속성이 있어야 함)
+                        const validProfiles = parsed.filter(p => p && p.name && p.name.trim() !== '');
+                        if (validProfiles.length > 0) {
+                            profiles = validProfiles;
+                            hasValidData = true;
+                        }
                     }
                 } catch (e) {
                     console.error('프로필 데이터 파싱 오류:', e);
+                    // 파싱 오류 시 localStorage 초기화
+                    localStorage.removeItem('linkedinProfiles');
                 }
             }
             
             // 프로필이 없거나 유효하지 않으면 데모 데이터 로드
-            if (!profiles || profiles.length === 0) {
+            if (!hasValidData && (!profiles || profiles.length === 0)) {
                 const demoProfiles = [
                     {
                         id: '1',
@@ -978,6 +986,18 @@
                 
                 profiles = demoProfiles;
                 localStorage.setItem('linkedinProfiles', JSON.stringify(profiles));
+                console.log('데모 프로필 로드 완료:', profiles.length, '개');
+            }
+        }
+        
+        // 강제로 데모 데이터 로드 (디버깅용)
+        function forceLoadDemoData() {
+            if (confirm('모든 프로필을 삭제하고 데모 데이터를 다시 로드하시겠습니까?')) {
+                localStorage.removeItem('linkedinProfiles');
+                profiles = [];
+                initDemoData();
+                loadProfiles();
+                alert('데모 데이터가 로드되었습니다!');
             }
         }
 
