@@ -1120,9 +1120,27 @@
             if (confirm('모든 프로필을 삭제하고 데모 데이터를 다시 로드하시겠습니까?')) {
                 localStorage.removeItem('linkedinProfiles');
                 profiles = [];
+                
+                // 데모 데이터 직접 로드
                 initDemoData();
-                loadProfiles();
-                alert('데모 데이터가 로드되었습니다!');
+                
+                // localStorage에서 다시 읽기
+                const stored = localStorage.getItem('linkedinProfiles');
+                if (stored) {
+                    try {
+                        profiles = JSON.parse(stored);
+                        console.log('강제 로드 후 프로필 수:', profiles.length);
+                    } catch (e) {
+                        console.error('데이터 파싱 오류:', e);
+                    }
+                }
+                
+                // 프로필 표시
+                displayProfiles(profiles);
+                updateStats();
+                updateActionProfileSelect();
+                
+                alert('데모 데이터가 로드되었습니다! (' + profiles.length + '개 프로필)');
             }
         }
 
@@ -1167,8 +1185,8 @@
                 // 데모 데이터 직접 로드
                 initDemoData();
                 
-                // localStorage에서 다시 읽기
-                const storedAfter = localStorage.getItem('linkedinProfiles');
+                // localStorage에서 다시 읽기 (여러 번 시도)
+                let storedAfter = localStorage.getItem('linkedinProfiles');
                 if (storedAfter) {
                     try {
                         const parsed = JSON.parse(storedAfter);
@@ -1176,13 +1194,42 @@
                             profiles = parsed;
                             console.log('데모 데이터 로드 완료:', profiles.length, '개');
                         } else {
-                            console.error('데모 데이터가 제대로 저장되지 않음');
+                            console.error('데모 데이터가 제대로 저장되지 않음 - 재시도');
+                            // 재시도
+                            initDemoData();
+                            storedAfter = localStorage.getItem('linkedinProfiles');
+                            if (storedAfter) {
+                                profiles = JSON.parse(storedAfter);
+                                console.log('재시도 후 프로필 수:', profiles.length);
+                            }
                         }
                     } catch (e) {
                         console.error('데모 데이터 파싱 오류:', e);
+                        // 재시도
+                        initDemoData();
+                        storedAfter = localStorage.getItem('linkedinProfiles');
+                        if (storedAfter) {
+                            try {
+                                profiles = JSON.parse(storedAfter);
+                                console.log('재시도 후 프로필 수:', profiles.length);
+                            } catch (e2) {
+                                console.error('재시도도 실패:', e2);
+                            }
+                        }
                     }
                 } else {
-                    console.error('데모 데이터가 localStorage에 저장되지 않음');
+                    console.error('데모 데이터가 localStorage에 저장되지 않음 - 재시도');
+                    // 재시도
+                    initDemoData();
+                    storedAfter = localStorage.getItem('linkedinProfiles');
+                    if (storedAfter) {
+                        try {
+                            profiles = JSON.parse(storedAfter);
+                            console.log('재시도 후 프로필 수:', profiles.length);
+                        } catch (e) {
+                            console.error('재시도도 실패:', e);
+                        }
+                    }
                 }
             }
             
