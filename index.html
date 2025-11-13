@@ -412,10 +412,11 @@
                 const specialty = profile.specialty || '';
                 const specialtyTags = specialty ? specialty.split(',').map(s => s.trim()).filter(s => s) : [];
                 const profileType = getProfileType(profile);
+                const typeIcon = getTypeIcon(profileType);
                 
                 return `
                 <div class="profile-card">
-                    <h3>${escapeHtml(profile.name)} ${getTypeIcon(profileType)}</h3>
+                    <h3>${typeIcon} ${escapeHtml(profile.name)}</h3>
                     ${profile.company ? `<div class="info"><strong>회사/기관:</strong> ${escapeHtml(profile.company)}</div>` : ''}
                     ${profile.position ? `<div class="info"><strong>직책:</strong> ${escapeHtml(profile.position)}</div>` : ''}
                     ${specialtyTags.length > 0 ? `<div class="info"><strong>전문 분야:</strong> ${specialtyTags.map(tag => `<span style="background: #e3f2fd; padding: 3px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px;">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
@@ -566,16 +567,33 @@
             const position = (profile.position || '').toLowerCase();
             const company = (profile.company || '').toLowerCase();
             const specialty = (profile.specialty || '').toLowerCase();
+            const notes = (profile.notes || '').toLowerCase();
             
-            if (position.includes('교수') || position.includes('professor') || position.includes('연구') || position.includes('researcher') || company.includes('대학') || company.includes('university')) {
+            // 학계 판별 (가장 우선)
+            if (position.includes('교수') || position.includes('professor') || 
+                position.includes('assistant professor') || position.includes('associate professor') ||
+                company.includes('대학') || company.includes('university') || 
+                company.includes('college') || company.includes('학교')) {
                 return 'academic';
             }
-            if (position.includes('치료') || position.includes('상담') || position.includes('therapist') || position.includes('counselor') || specialty.includes('임상') || specialty.includes('상담')) {
+            
+            // 치료사/상담사 판별
+            if (position.includes('치료') || position.includes('상담') || 
+                position.includes('therapist') || position.includes('counselor') ||
+                position.includes('psychologist') || position.includes('심리사') ||
+                specialty.includes('임상') || specialty.includes('상담') ||
+                specialty.includes('clinical') || specialty.includes('counseling')) {
                 return 'therapist';
             }
-            if (position.includes('연구') || position.includes('research')) {
+            
+            // 연구자 판별
+            if (position.includes('연구') || position.includes('research') ||
+                position.includes('연구원') || position.includes('researcher') ||
+                position.includes('연구소') || company.includes('research') ||
+                notes.includes('연구') || notes.includes('research')) {
                 return 'researcher';
             }
+            
             return 'other';
         }
 
