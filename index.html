@@ -1110,8 +1110,27 @@
                 ];
                 
                 profiles = demoProfiles;
-                localStorage.setItem('linkedinProfiles', JSON.stringify(profiles));
-                console.log('데모 프로필 로드 완료:', profiles.length, '개');
+                try {
+                    const profilesJson = JSON.stringify(profiles);
+                    localStorage.setItem('linkedinProfiles', profilesJson);
+                    console.log('데모 프로필 로드 완료:', profiles.length, '개');
+                    
+                    // 저장 확인
+                    const verify = localStorage.getItem('linkedinProfiles');
+                    if (verify) {
+                        const parsed = JSON.parse(verify);
+                        if (Array.isArray(parsed) && parsed.length === profiles.length) {
+                            console.log('저장 확인 완료:', parsed.length, '개 프로필이 localStorage에 저장됨');
+                        } else {
+                            console.warn('저장 확인 실패: 프로필 수가 일치하지 않음');
+                        }
+                    } else {
+                        console.error('저장 실패: localStorage에 데이터가 없음');
+                    }
+                } catch (e) {
+                    console.error('localStorage 저장 오류:', e);
+                    alert('프로필 저장 중 오류가 발생했습니다: ' + e.message);
+                }
             }
         }
         
