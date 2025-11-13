@@ -654,8 +654,120 @@
         let editingId = null;
         let currentFilter = 'all';
 
+        // 데모 데이터 초기화 (프로필이 없을 때만)
+        function initDemoData() {
+            if (profiles.length === 0) {
+                const demoProfiles = [
+                    {
+                        id: '1',
+                        name: '김민수',
+                        company: '서울대학교 심리학과',
+                        position: '교수',
+                        specialty: '인지심리, 실험심리',
+                        linkedinUrl: 'https://linkedin.com/in/demo1',
+                        notes: '인지 발달 연구, 아동 학습 능력 연구 전문가',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '2',
+                        name: '이지은',
+                        company: '연세대학교병원',
+                        position: '임상심리사',
+                        specialty: '임상심리, 상담심리',
+                        linkedinUrl: 'https://linkedin.com/in/demo2',
+                        notes: '우울증, 불안장애 치료 전문, CBT 전문가',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '3',
+                        name: '박준호',
+                        company: '한국과학기술원 (KAIST)',
+                        position: '연구원',
+                        specialty: '인지신경과학, 뇌과학',
+                        linkedinUrl: 'https://linkedin.com/in/demo3',
+                        notes: 'fMRI를 활용한 인지 과정 연구, 메모리 메커니즘 연구',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '4',
+                        name: '최수진',
+                        company: '삼성서울병원 정신건강의학과',
+                        position: '상담심리사',
+                        specialty: '상담심리, 가족치료',
+                        linkedinUrl: 'https://linkedin.com/in/demo4',
+                        notes: '가족 상담, 부부 치료 전문, 집단 치료 경력 10년',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '5',
+                        name: '정현우',
+                        company: '고려대학교 심리학과',
+                        position: '부교수',
+                        specialty: '사회심리, 산업심리',
+                        linkedinUrl: 'https://linkedin.com/in/demo5',
+                        notes: '조직 심리, 리더십 연구, 기업 컨설팅 경력',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '6',
+                        name: '한소영',
+                        company: '서울아산병원',
+                        position: '임상심리사',
+                        specialty: '임상심리, 아동심리',
+                        linkedinUrl: 'https://linkedin.com/in/demo6',
+                        notes: '아동 발달 장애, ADHD 치료 전문가',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '7',
+                        name: '윤태영',
+                        company: '포스텍 (POSTECH)',
+                        position: '연구교수',
+                        specialty: '인지심리, 인공지능',
+                        linkedinUrl: 'https://linkedin.com/in/demo7',
+                        notes: 'AI와 인지과학 융합 연구, 기계학습 심리 모델링',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '8',
+                        name: '강미라',
+                        company: '이화여자대학교',
+                        position: '교수',
+                        specialty: '발달심리, 교육심리',
+                        linkedinUrl: 'https://linkedin.com/in/demo8',
+                        notes: '청소년 발달, 교육 정책 연구, 학회 이사',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '9',
+                        name: '조성민',
+                        company: '서울대학교병원',
+                        position: '임상심리사',
+                        specialty: '임상심리, 트라우마 치료',
+                        linkedinUrl: 'https://linkedin.com/in/demo9',
+                        notes: 'PTSD 치료, EMDR 전문가, 외상 후 스트레스 연구',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '10',
+                        name: '임동욱',
+                        company: '한국과학기술연구원 (KIST)',
+                        position: '선임연구원',
+                        specialty: '인지신경과학, 뇌영상',
+                        linkedinUrl: 'https://linkedin.com/in/demo10',
+                        notes: '뇌파 분석, 인지 기능 평가, 신경과학 연구',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                
+                profiles = demoProfiles;
+                localStorage.setItem('linkedinProfiles', JSON.stringify(profiles));
+            }
+        }
+
         // 페이지 로드 시 프로필 목록 표시
         function loadProfiles() {
+            initDemoData(); // 데모 데이터 초기화
             displayProfiles(profiles);
             updateStats();
             updateActionProfileSelect();
