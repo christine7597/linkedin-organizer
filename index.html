@@ -657,7 +657,22 @@
 
         // 데모 데이터 초기화 (프로필이 없을 때만)
         function initDemoData() {
-            if (profiles.length === 0) {
+            // localStorage에서 다시 읽어오기
+            const stored = localStorage.getItem('linkedinProfiles');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        profiles = parsed;
+                        return; // 이미 데이터가 있으면 데모 데이터 로드하지 않음
+                    }
+                } catch (e) {
+                    console.error('프로필 데이터 파싱 오류:', e);
+                }
+            }
+            
+            // 프로필이 없거나 유효하지 않으면 데모 데이터 로드
+            if (!profiles || profiles.length === 0) {
                 const demoProfiles = [
                     {
                         id: '1',
@@ -969,6 +984,20 @@
         // 페이지 로드 시 프로필 목록 표시
         function loadProfiles() {
             initDemoData(); // 데모 데이터 초기화
+            
+            // localStorage에서 최신 데이터 다시 읽어오기
+            const stored = localStorage.getItem('linkedinProfiles');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed)) {
+                        profiles = parsed;
+                    }
+                } catch (e) {
+                    console.error('프로필 데이터 파싱 오류:', e);
+                }
+            }
+            
             displayProfiles(profiles);
             updateStats();
             updateActionProfileSelect();
