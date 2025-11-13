@@ -2246,16 +2246,49 @@
         window.addEventListener('load', function() {
             setTimeout(function() {
                 const profileList = document.getElementById('profileList');
+                console.log('window.onload - profileList 확인:', profileList);
+                
                 if (profileList) {
-                    const hasContent = profileList.innerHTML.trim() !== '' && 
-                                     !profileList.innerHTML.includes('저장된 프로필이 없습니다') &&
-                                     !profileList.innerHTML.includes('프로필을 불러오는 중');
-                    if (!hasContent) {
+                    const currentContent = profileList.innerHTML.trim();
+                    console.log('현재 profileList 내용:', currentContent.substring(0, 100));
+                    
+                    const hasContent = currentContent !== '' && 
+                                     !currentContent.includes('저장된 프로필이 없습니다') &&
+                                     !currentContent.includes('프로필을 불러오는 중') &&
+                                     !currentContent.includes('empty-state');
+                    
+                    console.log('프로필 콘텐츠 있음:', hasContent);
+                    console.log('현재 profiles 배열:', profiles ? profiles.length : 0, '개');
+                    
+                    if (!hasContent || !profiles || profiles.length === 0) {
                         console.log('프로필이 없어서 다시 로드 시도');
-                        loadProfiles();
+                        
+                        // localStorage 확인
+                        const stored = localStorage.getItem('linkedinProfiles');
+                        console.log('localStorage 데이터:', stored ? stored.substring(0, 100) : '없음');
+                        
+                        // 강제로 데모 데이터 로드
+                        localStorage.removeItem('linkedinProfiles');
+                        profiles = [];
+                        initDemoData();
+                        
+                        // 다시 읽기
+                        const storedAfter = localStorage.getItem('linkedinProfiles');
+                        if (storedAfter) {
+                            try {
+                                profiles = JSON.parse(storedAfter);
+                                console.log('window.onload에서 로드한 프로필 수:', profiles.length);
+                                displayProfiles(profiles);
+                                updateStats();
+                            } catch (e) {
+                                console.error('window.onload 파싱 오류:', e);
+                            }
+                        }
                     }
+                } else {
+                    console.error('window.onload - profileList 요소를 찾을 수 없습니다!');
                 }
-            }, 500);
+            }, 1000);
         });
     </script>
 </body>
