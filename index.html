@@ -1407,7 +1407,19 @@
                     </div>
                 </div>
             `;
-            }).join('');
+                }).join('');
+            } else {
+                console.error('프로필이 없어서 빈 상태를 표시합니다.');
+                profileList.innerHTML = `
+                    <div class="empty-state">
+                        <p>저장된 프로필이 없습니다.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em;">위 폼을 사용하여 프로필을 추가하세요.</p>
+                        <button onclick="forceLoadDemoData()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            🔄 데모 데이터 로드하기
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         // 프로필 추가/수정
