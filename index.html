@@ -466,7 +466,8 @@
                 
                 <div class="alert alert-info" style="margin-bottom: 20px;">
                     💡 <strong>빠른 추가:</strong> LinkedIn URL을 입력하고 "정보 가져오기"를 클릭하세요!<br>
-                    🧠 심리학 연구자, 치료사, 상담사, 정신건강 전문가들의 프로필을 관리합니다.
+                    🧠 심리학 연구자, 치료사, 상담사, 정신건강 전문가들의 프로필을 관리합니다.<br>
+                    👶 <strong>아동심리 전문가</strong> 프로필도 추가하여 아동 정서 발달, 놀이치료, 부모-자녀 관계 등 전문가 네트워크를 구축하세요.
                 </div>
 
                 <div class="form-group">
@@ -715,7 +716,7 @@
                         position: '임상심리사',
                         specialty: '임상심리, 아동심리',
                         linkedinUrl: 'https://linkedin.com/in/demo6',
-                        notes: '아동 발달 장애, ADHD 치료 전문가',
+                        notes: '아동 발달 장애, ADHD 치료 전문가, 아동 감정 조절 상담',
                         createdAt: new Date().toISOString()
                     },
                     {
@@ -1475,37 +1476,141 @@
             fetchBtn.disabled = true;
 
             try {
-                // CORS 프록시를 통한 정보 가져오기 시도
-                // 실제로는 LinkedIn이 CORS를 막고 있어서 직접 가져올 수 없음
-                // 대신 URL에서 사용자 이름 추출 및 기본 정보 설정
-                
                 // URL에서 사용자 이름 추출
                 const urlMatch = url.match(/linkedin\.com\/in\/([^\/\?]+)/);
                 const username = urlMatch ? urlMatch[1] : '';
                 
-                // LinkedIn 공개 프로필은 CORS로 직접 접근 불가
-                // 대신 사용자에게 정보 입력을 유도
-                if (username) {
-                    // URL을 linkedinUrl 필드에 자동 입력
-                    document.getElementById('linkedinUrl').value = url;
-                    
-                    // 사용자 이름을 기반으로 이름 필드에 힌트 제공
-                    const formattedName = username
-                        .split('-')
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ');
-                    
-                    // 이름 필드에 포커스
-                    document.getElementById('name').focus();
-                    
-                    // 안내 메시지
-                    alert(`LinkedIn URL이 입력되었습니다!\n\n이름, 회사, 직책 정보를 입력해주세요.\n\n💡 팁: LinkedIn 프로필 페이지에서 정보를 복사해서 붙여넣으세요.`);
-                } else {
+                if (!username) {
                     alert('LinkedIn URL 형식이 올바르지 않습니다.');
+                    fetchBtn.innerHTML = originalText;
+                    fetchBtn.disabled = false;
+                    return;
                 }
+
+                // 여러 CORS 프록시를 통해 정보 가져오기 시도
+                const proxies = [
+                    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+                ];
+
+                let extractedInfo = {
+                    name: null,
+                    company: null,
+                    position: null
+                };
+
+                // 각 프록시를 순차적으로 시도
+                for (const proxyUrl of proxies) {
+                    try {
+                        const response = await fetch(proxyUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                            }
+                        });
+                        
+                        let html = '';
+                        if (proxyUrl.includes('allorigins')) {
+                            const data = await response.json();
+                            html = data.contents || '';
+                        } else {
+                            html = await response.text();
+                        }
+
+                        if (html && html.length > 100) {
+                            // HTML에서 이름 추출 (여러 패턴 시도)
+                            const namePatterns = [
+                                /<title>([^<]+)\s*[-|]\s*LinkedIn/i,
+                                /<meta\s+property="og:title"\s+content="([^"]+)"/i,
+                                /"firstName":"([^"]+)"/i,
+                                /<h1[^>]*class="[^"]*text-heading-xlarge[^"]*"[^>]*>([^<]+)<\/h1>/i
+                            ];
+                            
+                            for (const pattern of namePatterns) {
+                                const match = html.match(pattern);
+                                if (match && match[1]) {
+                                    let name = match[1].trim()
+                                        .replace(/\s*[-|]\s*LinkedIn.*/i, '')
+                                        .replace(/\s+/g, ' ');
+                                    if (name && name.length < 50) {
+                                        extractedInfo.name = name;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // 회사/직책 추출 시도
+                            const companyPatterns = [
+                                /"companyName":"([^"]+)"/i,
+                                /<div[^>]*class="[^"]*text-body-medium[^"]*"[^>]*>([^<]+)<\/div>/gi
+                            ];
+                            
+                            for (const pattern of companyPatterns) {
+                                const matches = [...html.matchAll(pattern)];
+                                if (matches.length > 0) {
+                                    for (const match of matches.slice(0, 3)) {
+                                        const text = match[1]?.trim();
+                                        if (text && !text.includes('LinkedIn') && text.length < 100 && text.length > 2) {
+                                            if (!extractedInfo.company) {
+                                                extractedInfo.company = text;
+                                            } else if (!extractedInfo.position) {
+                                                extractedInfo.position = text;
+                                            }
+                                        }
+                                    }
+                                    if (extractedInfo.company) break;
+                                }
+                            }
+
+                            // 정보를 일부라도 가져왔으면 성공으로 간주
+                            if (extractedInfo.name || extractedInfo.company) {
+                                break;
+                            }
+                        }
+                    } catch (proxyError) {
+                        console.log(`프록시 시도 실패:`, proxyError);
+                        continue; // 다음 프록시 시도
+                    }
+                }
+
+                // URL을 linkedinUrl 필드에 자동 입력
+                document.getElementById('linkedinUrl').value = url;
+
+                // 추출된 정보를 폼에 자동 입력
+                if (extractedInfo.name) {
+                    document.getElementById('name').value = extractedInfo.name;
+                }
+                if (extractedInfo.company) {
+                    document.getElementById('company').value = extractedInfo.company;
+                }
+                if (extractedInfo.position) {
+                    document.getElementById('position').value = extractedInfo.position;
+                }
+
+                // 결과 메시지
+                if (extractedInfo.name || extractedInfo.company) {
+                    const infoText = [
+                        extractedInfo.name ? `이름: ${extractedInfo.name}` : '',
+                        extractedInfo.company ? `회사: ${extractedInfo.company}` : '',
+                        extractedInfo.position ? `직책: ${extractedInfo.position}` : ''
+                    ].filter(Boolean).join('\n');
+                    
+                    alert(`✅ LinkedIn 프로필 정보를 가져왔습니다!\n\n${infoText}\n\n정보를 확인하고 수정한 후 저장해주세요.`);
+                } else {
+                    // 정보를 가져오지 못한 경우
+                    alert(`LinkedIn URL이 입력되었습니다!\n\n⚠️ 자동으로 정보를 가져오지 못했습니다.\n\n💡 팁:\n1. LinkedIn 프로필 페이지를 열어주세요\n2. 이름, 회사, 직책 정보를 복사해서 붙여넣으세요\n3. 또는 수동으로 정보를 입력해주세요\n\n📝 참고: LinkedIn은 보안 정책으로 인해 자동 정보 가져오기가 제한될 수 있습니다.`);
+                }
+                
+                // 이름 필드에 포커스
+                if (!extractedInfo.name) {
+                    document.getElementById('name').focus();
+                }
+                
             } catch (error) {
-                console.error('Error:', error);
-                alert('정보를 가져오는 중 오류가 발생했습니다. 수동으로 입력해주세요.');
+                console.error('LinkedIn 정보 가져오기 오류:', error);
+                document.getElementById('linkedinUrl').value = url;
+                alert('LinkedIn 정보를 가져오는 중 오류가 발생했습니다.\n\n수동으로 정보를 입력해주세요.\n\n📝 참고: LinkedIn은 보안 정책으로 인해 자동 정보 가져오기가 제한될 수 있습니다.');
             } finally {
                 fetchBtn.innerHTML = originalText;
                 fetchBtn.disabled = false;
