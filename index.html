@@ -281,6 +281,142 @@
             opacity: 0.9;
         }
 
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .insight-card h4 {
+            margin-bottom: 10px;
+        }
+
+        .insight-card p {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .collaboration-match {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4caf50;
+        }
+
+        .collaboration-match h4 {
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .match-score {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .export-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .action-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .action-item .date {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .bar-label {
+            width: 150px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .bar-fill {
+            flex: 1;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+            min-width: 50px;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -308,11 +444,25 @@
                 <h3 id="therapistCount">0</h3>
                 <p>치료사/상담사</p>
             </div>
+            <div class="stat-card">
+                <h3 id="collaborationCount">0</h3>
+                <p>협업 기회</p>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('network')">👥 네트워크</button>
+            <button class="tab-btn" onclick="showTab('analytics')">📊 통계 & 분석</button>
+            <button class="tab-btn" onclick="showTab('collaboration')">🤝 협업 매칭</button>
+            <button class="tab-btn" onclick="showTab('actions')">📅 후속 조치</button>
+            <button class="tab-btn" onclick="showTab('export')">💾 내보내기/가져오기</button>
         </div>
 
         <div class="main-content">
-            <div class="form-section">
-                <h2 style="margin-bottom: 20px; color: #333;">심리학 전문가 프로필 추가</h2>
+            <!-- 네트워크 탭 -->
+            <div id="network" class="tab-content active">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">심리학 전문가 프로필 추가</h2>
                 
                 <div class="alert alert-info" style="margin-bottom: 20px;">
                     💡 <strong>빠른 추가:</strong> LinkedIn URL을 입력하고 "정보 가져오기"를 클릭하세요!<br>
@@ -359,23 +509,139 @@
                     </div>
                     <button type="submit" class="btn btn-primary" id="submitBtn">프로필 저장</button>
                 </form>
+                </div>
+
+                <div class="list-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">심리학 네트워크</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="🔍 이름, 회사, 직책, 전문 분야로 검색...">
+                    </div>
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="filterByType('all')" id="filterAll">전체</button>
+                        <button class="btn btn-secondary" onclick="filterByType('researcher')" id="filterResearcher">연구자</button>
+                        <button class="btn btn-secondary" onclick="filterByType('therapist')" id="filterTherapist">치료사/상담사</button>
+                        <button class="btn btn-secondary" onclick="filterByType('academic')" id="filterAcademic">학계</button>
+                    </div>
+                    <div class="profile-list" id="profileList">
+                        <div class="empty-state">
+                            <p>저장된 프로필이 없습니다.</p>
+                            <p style="margin-top: 10px; font-size: 0.9em;">위 폼을 사용하여 프로필을 추가하세요.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="list-section">
-                <h2 style="margin-bottom: 20px; color: #333;">심리학 네트워크</h2>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="🔍 이름, 회사, 직책, 전문 분야로 검색...">
+            <!-- 통계 & 분석 탭 -->
+            <div id="analytics" class="tab-content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">📊 네트워크 통계 & 분석</h2>
+                    
+                    <div class="insight-card">
+                        <h4>💡 네트워크 인사이트</h4>
+                        <p id="networkInsights">프로필을 추가하면 네트워크 분석 결과가 여기에 표시됩니다.</p>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 15px; color: #333;">전문 분야 분포</h3>
+                        <div id="specialtyChart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 15px; color: #333;">회사/기관 분포</h3>
+                        <div id="companyChart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3 style="margin-bottom: 15px; color: #333;">직책 분포</h3>
+                        <div id="positionChart" class="bar-chart"></div>
+                    </div>
                 </div>
-                <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button class="btn btn-secondary" onclick="filterByType('all')" id="filterAll">전체</button>
-                    <button class="btn btn-secondary" onclick="filterByType('researcher')" id="filterResearcher">연구자</button>
-                    <button class="btn btn-secondary" onclick="filterByType('therapist')" id="filterTherapist">치료사/상담사</button>
-                    <button class="btn btn-secondary" onclick="filterByType('academic')" id="filterAcademic">학계</button>
+            </div>
+
+            <!-- 협업 매칭 탭 -->
+            <div id="collaboration" class="tab-content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">🤝 협업 기회 매칭</h2>
+                    
+                    <div class="insight-card">
+                        <h4>💡 협업 매칭이란?</h4>
+                        <p>전문 분야와 연구 관심사를 기반으로 협업 가능성이 높은 전문가를 추천합니다.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>내 전문 분야 입력</label>
+                        <input type="text" id="mySpecialty" placeholder="예: 임상심리, 상담심리, 인지심리">
+                        <small style="color: #666; font-size: 0.85em; display: block; margin-top: 5px;">
+                            쉼표로 구분하여 여러 분야 입력
+                        </small>
+                    </div>
+                    <button class="btn btn-primary" onclick="findCollaborations()">협업 기회 찾기</button>
+
+                    <div id="collaborationResults" style="margin-top: 30px;"></div>
                 </div>
-                <div class="profile-list" id="profileList">
-                    <div class="empty-state">
-                        <p>저장된 프로필이 없습니다.</p>
-                        <p style="margin-top: 10px; font-size: 0.9em;">위 폼을 사용하여 프로필을 추가하세요.</p>
+            </div>
+
+            <!-- 후속 조치 탭 -->
+            <div id="actions" class="tab-content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">📅 후속 조치 관리</h2>
+                    
+                    <div class="form-group">
+                        <label>프로필 선택</label>
+                        <select id="actionProfile" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <option value="">프로필 선택...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>조치 유형</label>
+                        <select id="actionType" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                            <option value="meeting">미팅/회의</option>
+                            <option value="email">이메일</option>
+                            <option value="call">전화</option>
+                            <option value="followup">후속 조치</option>
+                            <option value="note">메모</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>날짜</label>
+                        <input type="date" id="actionDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    </div>
+                    <div class="form-group">
+                        <label>내용</label>
+                        <textarea id="actionContent" placeholder="후속 조치 내용을 입력하세요..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; min-height: 80px;"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="addAction()">조치 추가</button>
+
+                    <div id="actionsList" style="margin-top: 30px;"></div>
+                </div>
+            </div>
+
+            <!-- 내보내기/가져오기 탭 -->
+            <div id="export" class="tab-content">
+                <div class="form-section">
+                    <h2 style="margin-bottom: 20px; color: #333;">💾 데이터 관리</h2>
+                    
+                    <div class="export-section">
+                        <h3 style="margin-bottom: 15px; color: #333;">📤 내보내기</h3>
+                        <p style="color: #666; margin-bottom: 15px;">프로필 데이터를 백업하거나 다른 곳에서 사용할 수 있도록 내보낼 수 있습니다.</p>
+                        <button class="btn btn-primary" onclick="exportData('json')" style="margin-right: 10px;">JSON으로 내보내기</button>
+                        <button class="btn btn-primary" onclick="exportData('csv')">CSV로 내보내기</button>
+                    </div>
+
+                    <div class="export-section">
+                        <h3 style="margin-bottom: 15px; color: #333;">📥 가져오기</h3>
+                        <p style="color: #666; margin-bottom: 15px;">이전에 내보낸 데이터를 가져올 수 있습니다.</p>
+                        <div class="form-group">
+                            <label>JSON 파일 선택</label>
+                            <input type="file" id="importFile" accept=".json" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        </div>
+                        <button class="btn btn-primary" onclick="importData()">데이터 가져오기</button>
+                    </div>
+
+                    <div class="export-section" style="background: #fff3cd; border-left: 4px solid #ffc107;">
+                        <h3 style="margin-bottom: 15px; color: #856404;">⚠️ 데이터 초기화</h3>
+                        <p style="color: #856404; margin-bottom: 15px;">모든 프로필 데이터를 삭제합니다. 신중하게 사용하세요.</p>
+                        <button class="btn btn-danger" onclick="clearAllData()">모든 데이터 삭제</button>
                     </div>
                 </div>
             </div>
@@ -392,6 +658,26 @@
         function loadProfiles() {
             displayProfiles(profiles);
             updateStats();
+            updateActionProfileSelect();
+        }
+
+        // 탭 전환
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'analytics') {
+                loadAnalytics();
+            } else if (tabName === 'actions') {
+                loadActions();
+                updateActionProfileSelect();
+            }
         }
 
         // 프로필 목록 표시
@@ -560,6 +846,396 @@
             
             document.getElementById('researcherCount').textContent = researcherCount;
             document.getElementById('therapistCount').textContent = therapistCount;
+            
+            // 협업 기회 수 계산 (전문 분야가 겹치는 프로필)
+            const collaborationCount = calculateCollaborationCount();
+            document.getElementById('collaborationCount').textContent = collaborationCount;
+        }
+
+        // 협업 기회 수 계산
+        function calculateCollaborationCount() {
+            if (profiles.length < 2) return 0;
+            let count = 0;
+            for (let i = 0; i < profiles.length; i++) {
+                for (let j = i + 1; j < profiles.length; j++) {
+                    if (hasCommonSpecialty(profiles[i], profiles[j])) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        // 공통 전문 분야 확인
+        function hasCommonSpecialty(profile1, profile2) {
+            const specialties1 = (profile1.specialty || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s);
+            const specialties2 = (profile2.specialty || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s);
+            return specialties1.some(s => specialties2.includes(s));
+        }
+
+        // 통계 & 분석 로드
+        function loadAnalytics() {
+            // 네트워크 인사이트
+            const insights = generateNetworkInsights();
+            document.getElementById('networkInsights').textContent = insights;
+
+            // 전문 분야 차트
+            const specialtyChart = document.getElementById('specialtyChart');
+            const specialtyData = getSpecialtyDistribution();
+            specialtyChart.innerHTML = renderBarChart(specialtyData);
+
+            // 회사 차트
+            const companyChart = document.getElementById('companyChart');
+            const companyData = getCompanyDistribution();
+            companyChart.innerHTML = renderBarChart(companyData);
+
+            // 직책 차트
+            const positionChart = document.getElementById('positionChart');
+            const positionData = getPositionDistribution();
+            positionChart.innerHTML = renderBarChart(positionData);
+        }
+
+        // 네트워크 인사이트 생성
+        function generateNetworkInsights() {
+            if (profiles.length === 0) {
+                return '프로필을 추가하면 네트워크 분석 결과가 여기에 표시됩니다.';
+            }
+
+            const total = profiles.length;
+            const researchers = profiles.filter(p => getProfileType(p) === 'researcher' || getProfileType(p) === 'academic').length;
+            const therapists = profiles.filter(p => getProfileType(p) === 'therapist').length;
+            const collaborations = calculateCollaborationCount();
+
+            let insights = `현재 ${total}명의 전문가가 네트워크에 등록되어 있습니다. `;
+            if (researchers > 0) {
+                insights += `연구자/학계 인사가 ${researchers}명, `;
+            }
+            if (therapists > 0) {
+                insights += `치료사/상담사가 ${therapists}명입니다. `;
+            }
+            if (collaborations > 0) {
+                insights += `전문 분야가 겹치는 협업 기회가 ${collaborations}개 발견되었습니다.`;
+            } else {
+                insights += '다양한 전문 분야의 전문가들이 네트워크에 포함되어 있습니다.';
+            }
+
+            return insights;
+        }
+
+        // 전문 분야 분포
+        function getSpecialtyDistribution() {
+            const distribution = {};
+            profiles.forEach(profile => {
+                const specialties = (profile.specialty || '').split(',').map(s => s.trim()).filter(s => s);
+                specialties.forEach(specialty => {
+                    distribution[specialty] = (distribution[specialty] || 0) + 1;
+                });
+            });
+            return Object.entries(distribution)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+        }
+
+        // 회사 분포
+        function getCompanyDistribution() {
+            const distribution = {};
+            profiles.forEach(profile => {
+                if (profile.company) {
+                    distribution[profile.company] = (distribution[profile.company] || 0) + 1;
+                }
+            });
+            return Object.entries(distribution)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+        }
+
+        // 직책 분포
+        function getPositionDistribution() {
+            const distribution = {};
+            profiles.forEach(profile => {
+                if (profile.position) {
+                    distribution[profile.position] = (distribution[profile.position] || 0) + 1;
+                }
+            });
+            return Object.entries(distribution)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+        }
+
+        // 바 차트 렌더링
+        function renderBarChart(data) {
+            if (data.length === 0) {
+                return '<div style="padding: 20px; text-align: center; color: #999;">데이터가 없습니다.</div>';
+            }
+
+            const maxValue = Math.max(...data.map(d => d[1]));
+            
+            return data.map(([label, value]) => {
+                const percent = maxValue > 0 ? Math.round((value / maxValue) * 100) : 0;
+                return `
+                    <div class="bar-item">
+                        <div class="bar-label">${escapeHtml(label)}</div>
+                        <div class="bar-fill" style="width: ${percent}%;">
+                            ${value}명
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 협업 기회 찾기
+        function findCollaborations() {
+            const mySpecialtyInput = document.getElementById('mySpecialty').value.trim();
+            if (!mySpecialtyInput) {
+                alert('내 전문 분야를 입력해주세요.');
+                return;
+            }
+
+            const mySpecialties = mySpecialtyInput.split(',').map(s => s.trim().toLowerCase()).filter(s => s);
+            const resultsDiv = document.getElementById('collaborationResults');
+
+            const matches = profiles.map(profile => {
+                const profileSpecialties = (profile.specialty || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s);
+                const commonSpecialties = mySpecialties.filter(s => profileSpecialties.includes(s));
+                const matchScore = commonSpecialties.length * 20; // 공통 분야당 20점
+
+                return {
+                    profile,
+                    matchScore,
+                    commonSpecialties
+                };
+            })
+            .filter(m => m.matchScore > 0)
+            .sort((a, b) => b.matchScore - a.matchScore)
+            .slice(0, 10);
+
+            if (matches.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <p>협업 기회가 발견되지 않았습니다.</p>
+                        <p style="margin-top: 10px; font-size: 0.9em;">다른 전문 분야로 시도해보세요.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsDiv.innerHTML = matches.map(match => {
+                const specialtyTags = match.commonSpecialties.map(s => 
+                    `<span style="background: #4caf50; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px;">${escapeHtml(s)}</span>`
+                ).join('');
+                
+                return `
+                    <div class="collaboration-match">
+                        <h4>
+                            ${escapeHtml(match.profile.name)}
+                            <span class="match-score">${match.matchScore}% 매칭</span>
+                        </h4>
+                        ${match.profile.company ? `<div style="color: #666; margin-bottom: 5px;"><strong>회사:</strong> ${escapeHtml(match.profile.company)}</div>` : ''}
+                        ${match.profile.position ? `<div style="color: #666; margin-bottom: 5px;"><strong>직책:</strong> ${escapeHtml(match.profile.position)}</div>` : ''}
+                        <div style="margin-top: 10px;">
+                            <strong>공통 전문 분야:</strong> ${specialtyTags}
+                        </div>
+                        ${match.profile.linkedinUrl ? `<div style="margin-top: 10px;"><a href="${match.profile.linkedinUrl}" target="_blank" style="color: #0077b5; font-weight: 600;">LinkedIn 프로필 보기 →</a></div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 후속 조치 프로필 선택 업데이트
+        function updateActionProfileSelect() {
+            const select = document.getElementById('actionProfile');
+            select.innerHTML = '<option value="">프로필 선택...</option>';
+            profiles.forEach(profile => {
+                const option = document.createElement('option');
+                option.value = profile.id;
+                option.textContent = profile.name + (profile.company ? ` (${profile.company})` : '');
+                select.appendChild(option);
+            });
+        }
+
+        // 후속 조치 추가
+        function addAction() {
+            const profileId = document.getElementById('actionProfile').value;
+            const actionType = document.getElementById('actionType').value;
+            const actionDate = document.getElementById('actionDate').value;
+            const actionContent = document.getElementById('actionContent').value.trim();
+
+            if (!profileId) {
+                alert('프로필을 선택해주세요.');
+                return;
+            }
+
+            if (!actionDate) {
+                alert('날짜를 선택해주세요.');
+                return;
+            }
+
+            if (!actionContent) {
+                alert('내용을 입력해주세요.');
+                return;
+            }
+
+            const actions = JSON.parse(localStorage.getItem('profileActions') || '[]');
+            const action = {
+                id: Date.now().toString(),
+                profileId,
+                type: actionType,
+                date: actionDate,
+                content: actionContent,
+                createdAt: new Date().toISOString()
+            };
+
+            actions.push(action);
+            localStorage.setItem('profileActions', JSON.stringify(actions));
+
+            // 폼 초기화
+            document.getElementById('actionDate').value = '';
+            document.getElementById('actionContent').value = '';
+
+            loadActions();
+        }
+
+        // 후속 조치 목록 로드
+        function loadActions() {
+            const actions = JSON.parse(localStorage.getItem('profileActions') || '[]');
+            const actionsList = document.getElementById('actionsList');
+
+            if (actions.length === 0) {
+                actionsList.innerHTML = `
+                    <div class="empty-state">
+                        <p>등록된 후속 조치가 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 날짜순 정렬 (최신순)
+            const sortedActions = actions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            actionsList.innerHTML = sortedActions.map(action => {
+                const profile = profiles.find(p => p.id === action.profileId);
+                const typeLabels = {
+                    'meeting': '미팅/회의',
+                    'email': '이메일',
+                    'call': '전화',
+                    'followup': '후속 조치',
+                    'note': '메모'
+                };
+
+                return `
+                    <div class="action-item">
+                        <div class="date">${new Date(action.date).toLocaleDateString('ko-KR')}</div>
+                        <h4 style="color: #333; margin-bottom: 8px;">
+                            ${profile ? escapeHtml(profile.name) : '알 수 없음'}
+                            <span style="background: #667eea; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8em; margin-left: 8px;">
+                                ${typeLabels[action.type] || action.type}
+                            </span>
+                        </h4>
+                        <p style="color: #666; line-height: 1.6;">${escapeHtml(action.content)}</p>
+                        <button class="btn btn-danger" onclick="deleteAction('${action.id}')" style="margin-top: 10px; padding: 5px 15px; font-size: 0.9em;">삭제</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 후속 조치 삭제
+        function deleteAction(actionId) {
+            if (confirm('이 후속 조치를 삭제하시겠습니까?')) {
+                const actions = JSON.parse(localStorage.getItem('profileActions') || '[]');
+                const filtered = actions.filter(a => a.id !== actionId);
+                localStorage.setItem('profileActions', JSON.stringify(filtered));
+                loadActions();
+            }
+        }
+
+        // 데이터 내보내기
+        function exportData(format) {
+            if (profiles.length === 0) {
+                alert('내보낼 프로필이 없습니다.');
+                return;
+            }
+
+            if (format === 'json') {
+                const dataStr = JSON.stringify(profiles, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `mindconnect-profiles-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            } else if (format === 'csv') {
+                const headers = ['이름', '회사', '직책', '전문 분야', 'LinkedIn URL', '메모'];
+                const rows = profiles.map(p => [
+                    p.name || '',
+                    p.company || '',
+                    p.position || '',
+                    p.specialty || '',
+                    p.linkedinUrl || '',
+                    (p.notes || '').replace(/\n/g, ' ')
+                ]);
+
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','))
+                ].join('\n');
+
+                const dataBlob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `mindconnect-profiles-${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // 데이터 가져오기
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('파일을 선택해주세요.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) {
+                        throw new Error('잘못된 데이터 형식입니다.');
+                    }
+
+                    if (confirm(`${imported.length}개의 프로필을 가져오시겠습니까? 기존 데이터는 유지됩니다.`)) {
+                        // 중복 제거 (ID 기준)
+                        const existingIds = new Set(profiles.map(p => p.id));
+                        const newProfiles = imported.filter(p => !existingIds.has(p.id));
+                        profiles = [...profiles, ...newProfiles];
+                        localStorage.setItem('linkedinProfiles', JSON.stringify(profiles));
+                        loadProfiles();
+                        alert(`${newProfiles.length}개의 프로필이 추가되었습니다.`);
+                        fileInput.value = '';
+                    }
+                } catch (error) {
+                    alert('파일을 읽는 중 오류가 발생했습니다: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 모든 데이터 삭제
+        function clearAllData() {
+            if (confirm('정말 모든 프로필 데이터를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                if (confirm('마지막 확인: 모든 데이터를 삭제하시겠습니까?')) {
+                    profiles = [];
+                    localStorage.removeItem('linkedinProfiles');
+                    localStorage.removeItem('profileActions');
+                    loadProfiles();
+                    alert('모든 데이터가 삭제되었습니다.');
+                }
+            }
         }
 
         // 프로필 타입 판별
