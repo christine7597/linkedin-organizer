@@ -1324,15 +1324,42 @@
             // 여전히 없으면 데모 데이터 강제 로드
             if (profilesToShow.length === 0) {
                 console.log('표시할 프로필이 없어서 데모 데이터를 로드합니다.');
+                
+                // localStorage 완전 초기화
+                localStorage.removeItem('linkedinProfiles');
+                profiles = [];
+                
+                // 데모 데이터 로드
                 initDemoData();
+                
                 // localStorage에서 다시 읽기
                 const stored = localStorage.getItem('linkedinProfiles');
                 if (stored) {
                     try {
-                        profilesToShow = JSON.parse(stored);
-                        profiles = profilesToShow;
+                        const parsed = JSON.parse(stored);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            profilesToShow = parsed;
+                            profiles = parsed;
+                            console.log('데모 데이터 로드 성공:', profilesToShow.length, '개');
+                        } else {
+                            console.error('파싱된 데이터가 배열이 아니거나 비어있음');
+                        }
                     } catch (e) {
                         console.error('데이터 파싱 오류:', e);
+                    }
+                } else {
+                    console.error('localStorage에 데이터가 없음 - initDemoData가 실행되지 않았을 수 있음');
+                    // 한 번 더 시도
+                    initDemoData();
+                    const stored2 = localStorage.getItem('linkedinProfiles');
+                    if (stored2) {
+                        try {
+                            profilesToShow = JSON.parse(stored2);
+                            profiles = profilesToShow;
+                            console.log('재시도 후 프로필 수:', profilesToShow.length);
+                        } catch (e) {
+                            console.error('재시도도 실패:', e);
+                        }
                     }
                 }
             }
@@ -1351,8 +1378,16 @@
             }
             
             console.log('프로필 표시 중:', profilesToShow.length, '개');
-
-            profileList.innerHTML = profilesToShow.map(profile => {
+            
+            // profileList 요소 확인
+            if (!profileList) {
+                console.error('profileList 요소를 찾을 수 없습니다!');
+                return;
+            }
+            
+            // 프로필이 있으면 표시
+            if (profilesToShow.length > 0) {
+                profileList.innerHTML = profilesToShow.map(profile => {
                 const specialty = profile.specialty || '';
                 const specialtyTags = specialty ? specialty.split(',').map(s => s.trim()).filter(s => s) : [];
                 const profileType = getProfileType(profile);
