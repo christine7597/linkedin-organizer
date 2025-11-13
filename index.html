@@ -1282,15 +1282,32 @@
             }
             
             // 프로필 표시 (무조건 실행)
+            console.log('프로필 표시 시도, profiles:', profiles ? profiles.length : 0);
+            
             if (profiles && profiles.length > 0) {
+                console.log('프로필 있음, displayProfiles 호출');
                 displayProfiles(profiles);
                 updateStats();
                 updateActionProfileSelect();
             } else {
+                console.log('프로필 없음, 빈 상태 표시');
                 // 프로필이 없어도 빈 상태 표시
                 displayProfiles([]);
                 updateStats();
             }
+            
+            // 최종 확인
+            setTimeout(function() {
+                const profileList = document.getElementById('profileList');
+                if (profileList) {
+                    const hasCards = profileList.querySelectorAll('.profile-card').length;
+                    console.log('최종 확인 - 프로필 카드 수:', hasCards);
+                    const debugText = document.getElementById('debugText');
+                    if (debugText) {
+                        debugText.textContent = `최종 상태: 프로필 카드 ${hasCards}개 표시됨`;
+                    }
+                }
+            }, 500);
         }
 
         // 탭 전환
@@ -1314,11 +1331,27 @@
 
         // 프로필 목록 표시
         function displayProfiles(profilesToShow) {
+            console.log('=== displayProfiles 시작 ===');
+            console.log('받은 profilesToShow:', profilesToShow ? profilesToShow.length : 'null');
+            console.log('현재 profiles:', profiles ? profiles.length : 'null');
+            
             const profileList = document.getElementById('profileList');
+            const debugText = document.getElementById('debugText');
+            
+            if (!profileList) {
+                console.error('profileList 요소를 찾을 수 없습니다!');
+                if (debugText) debugText.textContent = '오류: profileList 요소 없음';
+                return;
+            }
+            
+            if (debugText) {
+                debugText.textContent = `프로필 로드 시도 중... (받은 데이터: ${profilesToShow ? profilesToShow.length : 0}개)`;
+            }
             
             // profilesToShow가 없거나 빈 배열이면 profiles 사용
             if (!profilesToShow || profilesToShow.length === 0) {
                 profilesToShow = profiles || [];
+                console.log('profilesToShow가 비어서 profiles 사용:', profilesToShow.length);
             }
             
             // 여전히 없으면 데모 데이터 강제 로드
@@ -1387,7 +1420,11 @@
             
             // 프로필이 있으면 표시
             if (profilesToShow.length > 0) {
-                profileList.innerHTML = profilesToShow.map(profile => {
+                console.log('프로필 표시 시작:', profilesToShow.length, '개');
+                if (debugText) debugText.textContent = `프로필 ${profilesToShow.length}개 표시 중...`;
+                
+                try {
+                    profileList.innerHTML = profilesToShow.map(profile => {
                 const specialty = profile.specialty || '';
                 const specialtyTags = specialty ? specialty.split(',').map(s => s.trim()).filter(s => s) : [];
                 const profileType = getProfileType(profile);
@@ -1407,7 +1444,14 @@
                     </div>
                 </div>
             `;
-                }).join('');
+                    }).join('');
+                    
+                    console.log('프로필 HTML 생성 완료, 길이:', profileList.innerHTML.length);
+                    if (debugText) debugText.textContent = `✅ 프로필 ${profilesToShow.length}개 표시 완료!`;
+                } catch (e) {
+                    console.error('프로필 표시 중 오류:', e);
+                    if (debugText) debugText.textContent = `오류: ${e.message}`;
+                }
             } else {
                 console.error('프로필이 없어서 빈 상태를 표시합니다.');
                 profileList.innerHTML = `
@@ -2220,10 +2264,13 @@
 
         // 초기 로드 - DOM이 완전히 로드된 후 실행
         function initializeApp() {
-            console.log('앱 초기화 시작');
+            console.log('=== 앱 초기화 시작 ===');
             
             // 프로필 로드
-            loadProfiles();
+            setTimeout(function() {
+                console.log('loadProfiles 호출');
+                loadProfiles();
+            }, 100);
             
             // 필터 버튼 초기 스타일
             setTimeout(function() {
