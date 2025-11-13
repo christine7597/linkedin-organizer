@@ -513,7 +513,12 @@
                 </div>
 
                 <div class="list-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">심리학 네트워크</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2 style="margin: 0; color: #333;">심리학 네트워크</h2>
+                        <button onclick="forceLoadDemoData()" style="background: #ffc107; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+                            🔄 데모 데이터 다시 로드
+                        </button>
+                    </div>
                     <div class="search-box">
                         <input type="text" id="searchInput" placeholder="🔍 이름, 회사, 직책, 전문 분야로 검색...">
                     </div>
@@ -651,7 +656,7 @@
 
     <script>
         // 데이터 저장소 (로컬 스토리지)
-        let profiles = JSON.parse(localStorage.getItem('linkedinProfiles')) || [];
+        let profiles = [];
         let editingId = null;
         let currentFilter = 'all';
 
@@ -1003,6 +1008,8 @@
 
         // 페이지 로드 시 프로필 목록 표시
         function loadProfiles() {
+            console.log('loadProfiles() 시작');
+            
             // 먼저 localStorage에서 데이터 읽기
             const stored = localStorage.getItem('linkedinProfiles');
             let hasValidData = false;
@@ -1016,49 +1023,58 @@
                             profiles = validProfiles;
                             hasValidData = true;
                             console.log('localStorage에서 프로필 로드:', profiles.length, '개');
+                        } else {
+                            console.log('유효한 프로필이 없음 (name이 없는 프로필들)');
                         }
+                    } else {
+                        console.log('localStorage에 빈 배열 또는 유효하지 않은 데이터');
                     }
                 } catch (e) {
                     console.error('프로필 데이터 파싱 오류:', e);
                     localStorage.removeItem('linkedinProfiles');
                 }
+            } else {
+                console.log('localStorage에 데이터 없음');
             }
             
-            // 유효한 데이터가 없으면 데모 데이터 로드
-            if (!hasValidData) {
-                console.log('유효한 데이터가 없어서 데모 데이터 로드');
+            // 유효한 데이터가 없으면 무조건 데모 데이터 로드
+            if (!hasValidData || !profiles || profiles.length === 0) {
+                console.log('데모 데이터 로드 시작');
+                // localStorage 완전 초기화 (잘못된 데이터 제거)
+                localStorage.removeItem('linkedinProfiles');
+                profiles = [];
+                
+                // 데모 데이터 직접 로드
                 initDemoData();
+                
                 // localStorage에서 다시 읽기
                 const storedAfter = localStorage.getItem('linkedinProfiles');
                 if (storedAfter) {
                     try {
-                        profiles = JSON.parse(storedAfter);
-                        console.log('데모 데이터 로드 후 프로필 수:', profiles.length);
+                        const parsed = JSON.parse(storedAfter);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            profiles = parsed;
+                            console.log('데모 데이터 로드 완료:', profiles.length, '개');
+                        } else {
+                            console.error('데모 데이터가 제대로 저장되지 않음');
+                        }
                     } catch (e) {
                         console.error('데모 데이터 파싱 오류:', e);
                     }
+                } else {
+                    console.error('데모 데이터가 localStorage에 저장되지 않음');
                 }
             }
             
-            // 최종 확인: 여전히 프로필이 없으면 강제로 데모 데이터 로드
+            // 최종 확인: 여전히 프로필이 없으면 에러 메시지
             if (!profiles || profiles.length === 0) {
-                console.log('프로필이 없어서 데모 데이터를 강제로 로드합니다.');
-                // localStorage 완전 초기화
-                localStorage.removeItem('linkedinProfiles');
-                profiles = [];
-                initDemoData();
-                const storedFinal = localStorage.getItem('linkedinProfiles');
-                if (storedFinal) {
-                    try {
-                        profiles = JSON.parse(storedFinal);
-                        console.log('강제 로드 후 프로필 수:', profiles.length);
-                    } catch (e) {
-                        console.error('최종 데이터 파싱 오류:', e);
-                    }
-                }
+                console.error('프로필 로드 실패 - 프로필이 없습니다!');
+                alert('프로필을 불러오는 데 문제가 발생했습니다. 페이지를 새로고침하거나 "데모 데이터 다시 로드" 버튼을 클릭해주세요.');
+            } else {
+                console.log('최종 프로필 수:', profiles.length, '개');
             }
             
-            console.log('최종 프로필 수:', profiles ? profiles.length : 0);
+            // 프로필 표시
             displayProfiles(profiles);
             updateStats();
             updateActionProfileSelect();
@@ -1942,12 +1958,30 @@
             }
         });
 
-        // 초기 로드
-        loadProfiles();
-        
-        // 필터 버튼 초기 스타일
-        document.getElementById('filterAll').style.background = '#667eea';
-        document.getElementById('filterAll').style.color = 'white';
+        // 초기 로드 - DOM이 완전히 로드된 후 실행
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    loadProfiles();
+                    // 필터 버튼 초기 스타일
+                    const filterAll = document.getElementById('filterAll');
+                    if (filterAll) {
+                        filterAll.style.background = '#667eea';
+                        filterAll.style.color = 'white';
+                    }
+                }, 100);
+            });
+        } else {
+            setTimeout(function() {
+                loadProfiles();
+                // 필터 버튼 초기 스타일
+                const filterAll = document.getElementById('filterAll');
+                if (filterAll) {
+                    filterAll.style.background = '#667eea';
+                    filterAll.style.color = 'white';
+                }
+            }, 100);
+        }
     </script>
 </body>
 </html>
