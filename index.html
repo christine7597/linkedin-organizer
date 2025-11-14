@@ -3039,11 +3039,11 @@
                     } else {
                         // 프로필이 있으면 그대로 표시
                         displayProfiles(profiles);
-                                updateStats();
-                            } catch (e) {
-                                console.error('window.onload 파싱 오류:', e);
-                            }
-                        }
+                        updateStats();
+                    }
+                } else {
+                    console.error('window.onload - profileList 요소를 찾을 수 없습니다!');
+                }
                     }
                 } else {
                     console.error('window.onload - profileList 요소를 찾을 수 없습니다!');
