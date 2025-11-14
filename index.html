@@ -515,18 +515,33 @@
                 <div class="list-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
                         <h2 style="margin: 0; color: #333;">전문가 네트워크</h2>
-                        <button onclick="forceLoadDemoData()" style="background: #ffc107; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
-                            🔄 데모 데이터 다시 로드
-                        </button>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button onclick="exportSelectedProfiles()" style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+                                📤 선택 내보내기
+                            </button>
+                            <button onclick="duplicateSelectedProfiles()" style="background: #17a2b8; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+                                📋 선택 복제
+                            </button>
+                            <button onclick="forceLoadDemoData()" style="background: #ffc107; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+                                🔄 데모 데이터 다시 로드
+                            </button>
+                        </div>
                     </div>
                     <div class="search-box">
                         <input type="text" id="searchInput" placeholder="🔍 이름, 회사, 직책, 전문 분야로 검색...">
                     </div>
-                    <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn btn-secondary" onclick="filterByType('all')" id="filterAll">전체</button>
-                        <button class="btn btn-secondary" onclick="filterByType('researcher')" id="filterResearcher">연구자</button>
-                        <button class="btn btn-secondary" onclick="filterByType('therapist')" id="filterTherapist">치료사/상담사</button>
-                        <button class="btn btn-secondary" onclick="filterByType('academic')" id="filterAcademic">학계</button>
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" onclick="filterByType('all')" id="filterAll">전체</button>
+                            <button class="btn btn-secondary" onclick="filterByType('researcher')" id="filterResearcher">연구자</button>
+                            <button class="btn btn-secondary" onclick="filterByType('therapist')" id="filterTherapist">치료사/상담사</button>
+                            <button class="btn btn-secondary" onclick="filterByType('academic')" id="filterAcademic">학계</button>
+                        </div>
+                        <div style="margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn" onclick="selectAllProfiles()" style="background: #6c757d; color: white; padding: 8px 16px; font-size: 0.9em;">✅ 전체 선택</button>
+                            <button class="btn" onclick="deselectAllProfiles()" style="background: #6c757d; color: white; padding: 8px 16px; font-size: 0.9em;">❌ 선택 해제</button>
+                            <button class="btn" onclick="deleteSelectedProfiles()" style="background: #dc3545; color: white; padding: 8px 16px; font-size: 0.9em;">🗑️ 선택 삭제</button>
+                        </div>
                     </div>
                     <div class="profile-list" id="profileList">
                         <div class="empty-state">
@@ -543,7 +558,13 @@
             <!-- 통계 & 분석 탭 -->
             <div id="analytics" class="tab-content">
                 <div class="form-section">
-                    <h2 style="margin-bottom: 20px; color: #333;">📊 네트워크 통계 & 분석</h2>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                        <h2 style="margin: 0; color: #333;">📊 네트워크 통계 & 분석</h2>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" onclick="exportAnalytics()" style="background: #28a745; color: white; padding: 8px 16px; font-size: 0.9em;">📤 통계 내보내기</button>
+                            <button class="btn" onclick="refreshAnalytics()" style="background: #17a2b8; color: white; padding: 8px 16px; font-size: 0.9em;">🔄 새로고침</button>
+                        </div>
+                    </div>
                     
                     <div class="insight-card">
                         <h4>💡 네트워크 인사이트</h4>
@@ -1734,7 +1755,10 @@
                 const typeIcon = getTypeIcon(profileType);
                 
                 return `
-                <div class="profile-card">
+                <div class="profile-card" style="position: relative;">
+                    <div style="position: absolute; top: 15px; right: 15px;">
+                        <input type="checkbox" class="profile-checkbox" data-profile-id="${profile.id}" onchange="updateSelectedCount()" style="width: 20px; height: 20px; cursor: pointer;">
+                    </div>
                     <h3>${typeIcon} ${escapeHtml(profile.name)}</h3>
                     ${profile.company ? `<div class="info"><strong>회사/기관:</strong> ${escapeHtml(profile.company)}</div>` : ''}
                     ${profile.position ? `<div class="info"><strong>직책:</strong> ${escapeHtml(profile.position)}</div>` : ''}
@@ -1744,6 +1768,7 @@
                     <div class="actions">
                         <button class="btn btn-edit" onclick="editProfile('${profile.id}')">수정</button>
                         <button class="btn btn-danger" onclick="deleteProfile('${profile.id}')">삭제</button>
+                        <button class="btn" onclick="duplicateProfile('${profile.id}')" style="background: #17a2b8; color: white;">📋 복제</button>
                     </div>
                 </div>
             `;
