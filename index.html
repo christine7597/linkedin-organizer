@@ -1897,6 +1897,11 @@
             }
         }
 
+        // 프로필 저장 함수
+        function saveProfiles() {
+            localStorage.setItem('linkedinProfiles', JSON.stringify(profiles));
+        }
+
         // 프로필 복제
         function duplicateProfile(id) {
             const profile = profiles.find(p => p.id === id);
