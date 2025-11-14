@@ -710,6 +710,7 @@
             
             // 프로필이 없거나 유효하지 않으면 데모 데이터 로드
             if (!hasValidData && (!profiles || profiles.length === 0)) {
+                console.log('데모 프로필 생성 시작');
                 const demoProfiles = [
                     {
                         id: '1',
@@ -1430,9 +1431,210 @@
                         linkedinUrl: 'https://linkedin.com/in/park-hyejin',
                         notes: '청소년 발달, 정체성 형성, 학교 적응',
                         createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '81',
+                        name: '송지훈',
+                        company: '서울대학교 심리학과',
+                        position: '교수',
+                        specialty: '인지심리, 실험심리',
+                        linkedinUrl: 'https://linkedin.com/in/song-jihoon',
+                        notes: '주의력 연구, 작업 기억, 인지 부하 이론',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '82',
+                        name: '오서연',
+                        company: '연세대학교병원 정신건강의학과',
+                        position: '임상심리사',
+                        specialty: '임상심리, 우울증 치료',
+                        linkedinUrl: 'https://linkedin.com/in/oh-seoyeon',
+                        notes: '우울증 치료, 인지 행동 치료, 약물-심리치료 통합',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '83',
+                        name: '유태민',
+                        company: '한국과학기술원 (KAIST)',
+                        position: '연구교수',
+                        specialty: '인지신경과학, 뇌과학',
+                        linkedinUrl: 'https://linkedin.com/in/yoo-taemin',
+                        notes: '뇌 영상 분석, 인지 신경과학, 컴퓨터 모델링',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '84',
+                        name: '장미영',
+                        company: '삼성서울병원 정신건강의학과',
+                        position: '상담심리사',
+                        specialty: '상담심리, 부부치료',
+                        linkedinUrl: 'https://linkedin.com/in/jang-miyoung',
+                        notes: '부부 상담, 관계 치료, 감정 중심 치료',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '85',
+                        name: '홍준기',
+                        company: '고려대학교 심리학과',
+                        position: '부교수',
+                        specialty: '사회심리, 조직심리',
+                        linkedinUrl: 'https://linkedin.com/in/hong-junki',
+                        notes: '조직 문화, 팀워크, 리더십 개발',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '86',
+                        name: '배수아',
+                        company: '이화여자대학교 심리학과',
+                        position: '교수',
+                        specialty: '발달심리, 아동심리',
+                        linkedinUrl: 'https://linkedin.com/in/bae-sua',
+                        notes: '아동 발달, 언어 발달, 조기 개입',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '87',
+                        name: '신동욱',
+                        company: '서울대학교병원 정신건강의학과',
+                        position: '임상심리사',
+                        specialty: '임상심리, 불안장애',
+                        linkedinUrl: 'https://linkedin.com/in/shin-dongwook',
+                        notes: '불안장애 치료, 공황장애, 인지 행동 치료',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '88',
+                        name: '문혜진',
+                        company: '포스텍 (POSTECH)',
+                        position: '연구교수',
+                        specialty: '인지심리, 인공지능',
+                        linkedinUrl: 'https://linkedin.com/in/moon-hyejin',
+                        notes: 'AI 심리학, 기계 학습, 인지 모델링',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '89',
+                        name: '권민석',
+                        company: '한국과학기술연구원 (KIST)',
+                        position: '선임연구원',
+                        specialty: '인지신경과학, 뇌영상',
+                        linkedinUrl: 'https://linkedin.com/in/kwon-minseok',
+                        notes: '뇌 영상 분석, 인지 기능 평가, 신경과학',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '90',
+                        name: '나지은',
+                        company: '연세대학교 심리학과',
+                        position: '교수',
+                        specialty: '임상심리, 상담심리',
+                        linkedinUrl: 'https://linkedin.com/in/na-jieun',
+                        notes: '상담 심리, 정신 건강, 치료 관계',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '91',
+                        name: '류성호',
+                        company: '서울대학교 심리학과',
+                        position: '부교수',
+                        specialty: '사회심리, 문화심리',
+                        linkedinUrl: 'https://linkedin.com/in/ryu-sungho',
+                        notes: '문화 심리, 집단 역학, 사회 인식',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '92',
+                        name: '안미라',
+                        company: '이화여자대학교 심리학과',
+                        position: '교수',
+                        specialty: '발달심리, 교육심리',
+                        linkedinUrl: 'https://linkedin.com/in/an-mira',
+                        notes: '학습 심리, 교육 정책, 학습 동기',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '93',
+                        name: '전혜원',
+                        company: '삼성서울병원 정신건강의학과',
+                        position: '임상심리사',
+                        specialty: '임상심리, 트라우마 치료',
+                        linkedinUrl: 'https://linkedin.com/in/jeon-hyewon',
+                        notes: '트라우마 치료, EMDR, 외상 후 성장',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '94',
+                        name: '차민수',
+                        company: '한국과학기술원 (KAIST)',
+                        position: '연구교수',
+                        specialty: '인지심리, 인공지능',
+                        linkedinUrl: 'https://linkedin.com/in/cha-minsu',
+                        notes: 'AI 심리학, 인지 아키텍처, 기계 학습',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '95',
+                        name: '하지영',
+                        company: '고려대학교 심리학과',
+                        position: '교수',
+                        specialty: '임상심리, 인지행동치료',
+                        linkedinUrl: 'https://linkedin.com/in/ha-jiyoung',
+                        notes: 'CBT 전문가, 우울증 치료, 인지 재구성',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '96',
+                        name: '구나현',
+                        company: '서울대학교병원 정신건강의학과',
+                        position: '임상심리사',
+                        specialty: '임상심리, 불안장애',
+                        linkedinUrl: 'https://linkedin.com/in/gu-nahyun',
+                        notes: '불안장애 치료, 공황장애, 이완 훈련',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '97',
+                        name: '노서윤',
+                        company: '포스텍 (POSTECH)',
+                        position: '연구교수',
+                        specialty: '인지신경과학, 뇌과학',
+                        linkedinUrl: 'https://linkedin.com/in/no-seoyoon',
+                        notes: '뇌 영상 분석, 인지 신경과학, 컴퓨터 모델링',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '98',
+                        name: '마동혁',
+                        company: '한국과학기술연구원 (KIST)',
+                        position: '선임연구원',
+                        specialty: '인지신경과학, 뇌영상',
+                        linkedinUrl: 'https://linkedin.com/in/ma-donghyuk',
+                        notes: '뇌파 분석, 인지 기능 평가, 신경과학 연구',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '99',
+                        name: '라혜진',
+                        company: '연세대학교 심리학과',
+                        position: '교수',
+                        specialty: '상담심리, 가족치료',
+                        linkedinUrl: 'https://linkedin.com/in/ra-hyejin',
+                        notes: '가족 상담, 구조적 가족치료, 시스템 이론',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: '100',
+                        name: '도준영',
+                        company: '서울대학교 심리학과',
+                        position: '교수',
+                        specialty: '인지심리, 실험심리',
+                        linkedinUrl: 'https://linkedin.com/in/do-junyong',
+                        notes: '인지 실험, 주의력 연구, 작업 기억',
+                        createdAt: new Date().toISOString()
                     }
                 ];
                 
+                console.log('데모 프로필 생성 완료:', demoProfiles.length, '개');
                 profiles = demoProfiles;
                 try {
                     const profilesJson = JSON.stringify(profiles);
@@ -2795,24 +2997,48 @@
                     console.log('현재 profiles 배열:', profiles ? profiles.length : 0, '개');
                     
                     if (!hasContent || !profiles || profiles.length === 0) {
-                        console.log('프로필이 없어서 다시 로드 시도');
+                        console.log('프로필이 없어서 예시 프로필 자동 로드');
                         
                         // localStorage 확인
                         const stored = localStorage.getItem('linkedinProfiles');
                         console.log('localStorage 데이터:', stored ? stored.substring(0, 100) : '없음');
                         
-                        // 강제로 데모 데이터 로드
-                        localStorage.removeItem('linkedinProfiles');
-                        profiles = [];
-                        initDemoData();
-                        
-                        // 다시 읽기
-                        const storedAfter = localStorage.getItem('linkedinProfiles');
-                        if (storedAfter) {
+                        // 프로필이 없으면 자동으로 예시 프로필 로드
+                        if (!stored || !stored.includes('"name"')) {
+                            console.log('예시 프로필 자동 로드 시작');
+                            initDemoData();
+                            
+                            // 다시 읽기
+                            setTimeout(() => {
+                                const storedAfter = localStorage.getItem('linkedinProfiles');
+                                if (storedAfter) {
+                                    try {
+                                        profiles = JSON.parse(storedAfter);
+                                        console.log('window.onload에서 로드한 프로필 수:', profiles.length);
+                                        if (profiles && profiles.length > 0) {
+                                            displayProfiles(profiles);
+                                            updateStats();
+                                        }
+                                    } catch (e) {
+                                        console.error('프로필 파싱 오류:', e);
+                                    }
+                                }
+                            }, 200);
+                        } else {
+                            // localStorage에 데이터가 있으면 다시 로드
                             try {
-                                profiles = JSON.parse(storedAfter);
-                                console.log('window.onload에서 로드한 프로필 수:', profiles.length);
-                                displayProfiles(profiles);
+                                profiles = JSON.parse(stored);
+                                if (profiles && profiles.length > 0) {
+                                    displayProfiles(profiles);
+                                    updateStats();
+                                }
+                            } catch (e) {
+                                console.error('프로필 파싱 오류:', e);
+                            }
+                        }
+                    } else {
+                        // 프로필이 있으면 그대로 표시
+                        displayProfiles(profiles);
                                 updateStats();
                             } catch (e) {
                                 console.error('window.onload 파싱 오류:', e);
