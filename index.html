@@ -1889,7 +1889,161 @@
                 if (searchTerm) {
                     searchProfiles();
                 }
+                
+                updateStats();
+                if (document.getElementById('analytics').classList.contains('active')) {
+                    loadAnalytics();
+                }
             }
+        }
+
+        // 프로필 복제
+        function duplicateProfile(id) {
+            const profile = profiles.find(p => p.id === id);
+            if (!profile) return;
+            
+            const duplicated = {
+                ...profile,
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                name: profile.name + ' (복사본)',
+                createdAt: new Date().toISOString()
+            };
+            
+            profiles.push(duplicated);
+            saveProfiles();
+            displayProfiles(profiles);
+            updateStats();
+            alert('프로필이 복제되었습니다!');
+        }
+
+        // 선택된 프로필 ID 가져오기
+        function getSelectedProfileIds() {
+            const checkboxes = document.querySelectorAll('.profile-checkbox:checked');
+            return Array.from(checkboxes).map(cb => cb.getAttribute('data-profile-id'));
+        }
+
+        // 선택된 프로필 개수 업데이트
+        function updateSelectedCount() {
+            const selectedCount = getSelectedProfileIds().length;
+            // 선택된 개수를 표시할 수 있는 UI 추가 가능
+        }
+
+        // 전체 선택
+        function selectAllProfiles() {
+            document.querySelectorAll('.profile-checkbox').forEach(cb => {
+                cb.checked = true;
+            });
+            updateSelectedCount();
+        }
+
+        // 전체 선택 해제
+        function deselectAllProfiles() {
+            document.querySelectorAll('.profile-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelectedCount();
+        }
+
+        // 선택된 프로필 삭제
+        function deleteSelectedProfiles() {
+            const selectedIds = getSelectedProfileIds();
+            if (selectedIds.length === 0) {
+                alert('삭제할 프로필을 선택해주세요.');
+                return;
+            }
+            
+            if (confirm(`정말 ${selectedIds.length}개의 프로필을 삭제하시겠습니까?`)) {
+                profiles = profiles.filter(p => !selectedIds.includes(p.id));
+                saveProfiles();
+                displayProfiles(profiles);
+                updateStats();
+                if (document.getElementById('analytics').classList.contains('active')) {
+                    loadAnalytics();
+                }
+                alert(`${selectedIds.length}개의 프로필이 삭제되었습니다.`);
+            }
+        }
+
+        // 선택된 프로필 내보내기
+        function exportSelectedProfiles() {
+            const selectedIds = getSelectedProfileIds();
+            if (selectedIds.length === 0) {
+                alert('내보낼 프로필을 선택해주세요.');
+                return;
+            }
+            
+            const selectedProfiles = profiles.filter(p => selectedIds.includes(p.id));
+            const dataStr = JSON.stringify(selectedProfiles, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `mindconnect-selected-profiles-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            alert(`${selectedProfiles.length}개의 프로필이 내보내졌습니다.`);
+        }
+
+        // 선택된 프로필 복제
+        function duplicateSelectedProfiles() {
+            const selectedIds = getSelectedProfileIds();
+            if (selectedIds.length === 0) {
+                alert('복제할 프로필을 선택해주세요.');
+                return;
+            }
+            
+            const selectedProfiles = profiles.filter(p => selectedIds.includes(p.id));
+            selectedProfiles.forEach(profile => {
+                const duplicated = {
+                    ...profile,
+                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                    name: profile.name + ' (복사본)',
+                    createdAt: new Date().toISOString()
+                };
+                profiles.push(duplicated);
+            });
+            
+            saveProfiles();
+            displayProfiles(profiles);
+            updateStats();
+            alert(`${selectedProfiles.length}개의 프로필이 복제되었습니다.`);
+        }
+
+        // 통계 새로고침
+        function refreshAnalytics() {
+            loadAnalytics();
+            alert('통계가 새로고침되었습니다!');
+        }
+
+        // 통계 내보내기
+        function exportAnalytics() {
+            const analytics = {
+                date: new Date().toLocaleString('ko-KR'),
+                totalProfiles: profiles.length,
+                stats: {
+                    researchers: profiles.filter(p => p.type === 'researcher').length,
+                    therapists: profiles.filter(p => p.type === 'therapist').length,
+                    academics: profiles.filter(p => p.type === 'academic').length
+                },
+                specialtyDistribution: getSpecialtyDistribution(),
+                companyDistribution: getCompanyDistribution(),
+                positionDistribution: getPositionDistribution(),
+                insights: generateNetworkInsights()
+            };
+            
+            const dataStr = JSON.stringify(analytics, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `mindconnect-analytics-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            alert('통계가 저장되었습니다!');
         }
 
         // 검색 기능
